@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Simulate a catalog of stars near to the Andromeda constellation
+Simulate a catalog of stars near to the Andromeda constellation.....
 """
 
 import math
