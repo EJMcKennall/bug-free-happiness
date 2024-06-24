@@ -1,0 +1,2 @@
+[console_scripts]
+sky_sim = mymodule.sky_sim:main

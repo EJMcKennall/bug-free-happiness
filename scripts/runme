@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Run the Python script
+python3 <<EOF
+from mymodule import sky_sim
+import sys
+
+print(sky_sim.get_radec())
+print(sys.argv)
+sys.exit()
+EOF

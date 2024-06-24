@@ -1,0 +1,5 @@
+Metadata-Version: 2.1
+Name: mymodule
+Version: 0.1
+Requires-Python: >=3.8
+Requires-Dist: numpy>=1.0
