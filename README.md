@@ -17,3 +17,4 @@ Documentation is currently just this file, and associated python docstrings
 Author/Contribution
 ----------------
 So far, me and the ADACS guide
+# bug-free-happiness
