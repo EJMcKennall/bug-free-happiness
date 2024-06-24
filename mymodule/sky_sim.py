@@ -31,6 +31,8 @@ def make_stars(ra, dec, nsrc=NSRC):
         decs.append(dec + random.uniform(-1, 1))
     return ras, decs
 
+def clip_to_radius():
+    pass
 
 if __name__ == "__main__":
     central_ra, central_dec = get_radec()
