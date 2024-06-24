@@ -43,3 +43,4 @@ if __name__ == "__main__":
         for i in range(NSRC):
             print(f"{i:07d}, {ras[i]:12f}, {decs[i]:12f}", file=f)
     print("Wrote catalogue.csv")
+t
