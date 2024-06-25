@@ -10,6 +10,18 @@ NSRC = 1_000_000
 
 
 def get_radec():
+     """
+    Generate the ra/dec coordinates of Andromeda
+    in decimal degrees.
+
+    Returns
+    -------
+    ra : float
+        The RA, in degrees, for Andromeda
+    dec : float
+        The DEC, in degrees for Andromeda
+    
+    """
     # from wikipedia
     andromeda_ra = '00:42:44.3'
     andromeda_dec = '41:16:09'

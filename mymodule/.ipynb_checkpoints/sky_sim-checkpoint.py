@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Simulate a catalog of stars near to the Andromeda constellation
+Simulate a catalog of stars near to the Andromeda constellation.....
 """
 
 import math
@@ -10,9 +10,21 @@ NSRC = 1_000_000
 
 
 def get_radec():
+     """
+    Generate the ra/dec coordinates of Andromeda
+    in decimal degrees.
+
+    Returns
+    -------
+    ra : float
+        The RA, in degrees, for Andromeda
+    dec : float
+        The DEC, in degrees for Andromeda
+    
+    """
     # from wikipedia
-    andromeda_ra = '00:41:42.1' #'00:42:44.3'
-    andromeda_dec = '45:17:03' #'41:16:09'
+    andromeda_ra = '00:42:44.3'
+    andromeda_dec = '41:16:09'
 
     degrees, minutes, seconds = andromeda_dec.split(':')
     dec = int(degrees)+int(minutes)/60+float(seconds)/3600
@@ -21,6 +33,7 @@ def get_radec():
     ra = 15*(int(hours)+int(minutes)/60+float(seconds)/3600)
     ra = ra/math.cos(dec*math.pi/180)
     return ra, dec
+
 
 def crop_to_circle(ras, decs, ref_ra, ref_dec, radius):
     """
@@ -55,6 +68,7 @@ def make_stars(ra,dec, nsrc=NSRC):
     ras, decs = crop_to_circle(ras,decs)
     return ras, decs
 
+
 def clip_to_radius():
     pass
 
@@ -67,4 +81,3 @@ if __name__ == "__main__":
         for i in range(NSRC):
             print(f"{i:07d}, {ras[i]:12f}, {decs[i]:12f}", file=f)
     print("Wrote catalogue.csv")
-t
