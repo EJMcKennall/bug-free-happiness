@@ -4,8 +4,15 @@ Simulate a catalog of stars near to the Andromeda constellation.....
 """
 
 import math
+import random
+import argparse
+import logging
 
 NSRC = 1_000_000
+
+# Configure logging
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
+mylogger = logging.getLogger("sky_sim")
 
 def get_radec():
     """
@@ -20,6 +27,8 @@ def get_radec():
         The DEC, in degrees for Andromeda
     
     """
+    mylogger.debug("Entering get_radec function")
+    
     # from wikipedia
     andromeda_ra = '00:42:44.3'
     andromeda_dec = '41:16:09'
@@ -31,6 +40,7 @@ def get_radec():
     ra = 15 * (int(hours) + int(minutes) / 60 + float(seconds) / 3600)
     ra = ra / math.cos(dec * math.pi / 180)
     
+    mylogger.debug("Exiting get_radec function")
     return ra, dec
 
 
@@ -52,45 +62,46 @@ def crop_to_circle(ras, decs, ref_ra, ref_dec, radius):
     ras, decs : list
         A list of ra and dec coordinates that pass our filter.
     """
+    mylogger.debug("Entering crop_to_circle function")
+    
     ra_out = []
     dec_out = []
     for i in range(len(ras)):
         if (ras[i] - ref_ra) ** 2 + (decs[i] - ref_dec) ** 2 < radius ** 2:
             ra_out.append(ras[i])
             dec_out.append(decs[i])
+    
+    mylogger.debug("Exiting crop_to_circle function")
     return ra_out, dec_out
 
 
 def make_stars(ra, dec, nsrc=NSRC):
-    # Placeholder implementation
+    """
+    Placeholder implementation to generate star positions.
+
+    Parameters
+    ----------
+    ra, dec : float
+        Central RA and DEC in degrees
+    nsrc : int, optional
+        Number of sources to generate, by default NSRC
+
+    Returns
+    -------
+    ras, decs : list
+        Lists of RA and DEC coordinates of generated stars
+    """
+    mylogger.debug("Entering make_stars function")
+    
     ras = [random.uniform(ra - 1, ra + 1) for _ in range(nsrc)]
     decs = [random.uniform(dec - 1, dec + 1) for _ in range(nsrc)]
     
     # Apply our filter
     ras, decs = crop_to_circle(ras, decs, ra, dec, 1.0)
+    
+    mylogger.debug("Exiting make_stars function")
     return ras, decs
 
-
-def clip_to_radius():
-    pass
-
-
-#if __name__ == "__main__":
-#   central_ra, central_dec = get_radec()
-#    ras, decs = make_stars(central_ra, central_dec)
-#    
-#    # Write to a CSV file for use by another program
-#    with open('catalogue.csv', 'w', encoding='utf8') as f:
-#        print("id,ra,dec", file=f)
-#        for i in range(NSRC):
-#            print(f"{i:07d}, {ras[i]:12f}, {decs[i]:12f}", file=f)
-#    
-#    print("Wrote catalogue.csv")
-
-
-import argparse
-
-...
 
 def skysim_parser():
     """
@@ -101,28 +112,48 @@ def skysim_parser():
     parser : argparse.ArgumentParser
         The parser for skysim.
     """
+    mylogger.debug("Entering skysim_parser function")
+    
     parser = argparse.ArgumentParser(prog='sky_sim', prefix_chars='-')
-    parser.add_argument('--ra', dest = 'ra', type=float, default=None,
+    parser.add_argument('--ra', dest='ra', type=float, default=None,
                         help="Central ra (degrees) for the simulation location")
-    parser.add_argument('--dec', dest = 'dec', type=float, default=None,
+    parser.add_argument('--dec', dest='dec', type=float, default=None,
                         help="Central dec (degrees) for the simulation location")
     parser.add_argument('--out', dest='out', type=str, default='catalog.csv',
                         help='destination for the output catalog')
+    parser.add_argument('-v', '--verbose', action='store_true', help="Enable debug level logging")
+    
+    mylogger.debug("Exiting skysim_parser function")
     return parser
+
 
 if __name__ == "__main__":
     parser = skysim_parser()
     options = parser.parse_args()
+    
+    # Set logging level based on command line argument
+    if options.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+        mylogger.info("Logging level set to DEBUG")
+    else:
+        logging.getLogger().setLevel(logging.INFO)
+    
+    mylogger.info("Starting sky simulation...")
+    
     if None in [options.ra, options.dec]:
+        mylogger.info("Generating default RA/DEC...")
         ra, dec = get_radec()
     else:
         ra = options.ra
         dec = options.dec
-
+    
+    mylogger.info(f"Running simulation with RA={ra}, DEC={dec}")
     ras, decs = make_stars(ra, dec)
-    # now write these to a csv file for use by my other program
+    
+    mylogger.info(f"Writing results to {options.out}")
     with open(options.out, 'w') as f:
         print("id,ra,dec", file=f)
         for i in range(NSRC):
             print(f"{i:07d}, {ras[i]:12f}, {decs[i]:12f}", file=f)
-    print(f"Wrote {options.out}")
+    
+    mylogger.info(f"Wrote {options.out}")
