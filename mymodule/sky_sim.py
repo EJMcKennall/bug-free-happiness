@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-Simulate a catalog of stars near to the Andromeda constellation
+Simulate a catalog of stars near to the Andromeda constellation.....
 """
 
 import math
@@ -23,13 +23,39 @@ def get_radec():
     return ra, dec
 
 
-def make_stars(ra, dec, nsrc=NSRC):
-    ras = []
-    decs = []
-    for _ in range(nsrc):
-        ras.append(ra + random.uniform(-1, 1))
-        decs.append(dec + random.uniform(-1, 1))
+def crop_to_circle(ras, decs, ref_ra, ref_dec, radius):
+    """
+    Crop an input list of positions so that they lie within radius of
+    a reference position
+
+    Parameters
+    ----------
+    ras,decs : list(float)
+        The ra and dec in degrees of the data points
+    ref_ra, ref_dec: float
+        The reference location
+    radius: float
+        The radius in degrees
+    Returns
+    -------
+    ras, decs : list
+        A list of ra and dec coordinates that pass our filter.
+    """
+    ra_out = []
+    dec_out = []
+    for i in range(len(ras)):
+        if (ras[i]-ref_ra)**2 + (decs[i]-ref_dec)**2 < radius**2:
+            ra_out.append(ras[i])
+            dec_out.append(ras[i])
+    return ra_out, dec_out
+
+
+def make_stars(ra,dec, nsrc=NSRC):
+    ...
+    # apply our filter
+    ras, decs = crop_to_circle(ras,decs)
     return ras, decs
+
 
 def clip_to_radius():
     pass
