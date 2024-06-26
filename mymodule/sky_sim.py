@@ -1,18 +1,15 @@
-#! /usr/bin/env python
-"""
-Simulate a catalog of stars near to the Andromeda constellation.....
-"""
-
 import math
 import random
-import argparse
 import logging
+import argparse
+import numpy as np
 
+# Constants
 NSRC = 1_000_000
 
 # Configure logging
-logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
-mylogger = logging.getLogger("sky_sim")
+logging.basicConfig(format="%(name)s:%(levelname)s %(message)s", level=logging.INFO)
+log = logging.getLogger("sky_sim")
 
 def get_radec():
     """
@@ -25,10 +22,8 @@ def get_radec():
         The RA, in degrees, for Andromeda
     dec : float
         The DEC, in degrees for Andromeda
-    
     """
-    mylogger.debug("Entering get_radec function")
-    
+    log.debug("Entering get_radec()")
     # from wikipedia
     andromeda_ra = '00:42:44.3'
     andromeda_dec = '41:16:09'
@@ -40,120 +35,89 @@ def get_radec():
     ra = 15 * (int(hours) + int(minutes) / 60 + float(seconds) / 3600)
     ra = ra / math.cos(dec * math.pi / 180)
     
-    mylogger.debug("Exiting get_radec function")
+    log.debug("Exiting get_radec()")
     return ra, dec
-
 
 def crop_to_circle(ras, decs, ref_ra, ref_dec, radius):
     """
     Crop an input list of positions so that they lie within radius of
-    a reference position
+    a reference position.
 
     Parameters
     ----------
     ras, decs : list(float)
-        The ra and dec in degrees of the data points
+        The ra and dec in degrees of the data points.
     ref_ra, ref_dec: float
-        The reference location
+        The reference location.
     radius: float
-        The radius in degrees
+        The radius in degrees.
+
     Returns
     -------
-    ras, decs : list
+    ra_out, dec_out : list
         A list of ra and dec coordinates that pass our filter.
     """
-    mylogger.debug("Entering crop_to_circle function")
-    
+    log.debug("Entering crop_to_circle()")
     ra_out = []
     dec_out = []
     for i in range(len(ras)):
         if (ras[i] - ref_ra) ** 2 + (decs[i] - ref_dec) ** 2 < radius ** 2:
             ra_out.append(ras[i])
             dec_out.append(decs[i])
-    
-    mylogger.debug("Exiting crop_to_circle function")
+    log.debug("Exiting crop_to_circle()")
     return ra_out, dec_out
 
-
 def make_stars(ra, dec, nsrc=NSRC):
-    """
-    Placeholder implementation to generate star positions.
-
-    Parameters
-    ----------
-    ra, dec : float
-        Central RA and DEC in degrees
-    nsrc : int, optional
-        Number of sources to generate, by default NSRC
-
-    Returns
-    -------
-    ras, decs : list
-        Lists of RA and DEC coordinates of generated stars
-    """
-    mylogger.debug("Entering make_stars function")
-    
+    log.debug("Entering make_stars()")
     ras = [random.uniform(ra - 1, ra + 1) for _ in range(nsrc)]
     decs = [random.uniform(dec - 1, dec + 1) for _ in range(nsrc)]
     
-    # Apply our filter
     ras, decs = crop_to_circle(ras, decs, ra, dec, 1.0)
-    
-    mylogger.debug("Exiting make_stars function")
+    log.debug("Exiting make_stars()")
     return ras, decs
-
 
 def skysim_parser():
     """
-    Configure the argparse for skysim
+    Configure the argparse for skysim.
 
     Returns
     -------
     parser : argparse.ArgumentParser
         The parser for skysim.
     """
-    mylogger.debug("Entering skysim_parser function")
-    
+    log.debug("Entering skysim_parser()")
     parser = argparse.ArgumentParser(prog='sky_sim', prefix_chars='-')
     parser.add_argument('--ra', dest='ra', type=float, default=None,
                         help="Central ra (degrees) for the simulation location")
     parser.add_argument('--dec', dest='dec', type=float, default=None,
                         help="Central dec (degrees) for the simulation location")
     parser.add_argument('--out', dest='out', type=str, default='catalog.csv',
-                        help='destination for the output catalog')
-    parser.add_argument('-v', '--verbose', action='store_true', help="Enable debug level logging")
-    
-    mylogger.debug("Exiting skysim_parser function")
+                        help='Destination for the output catalog')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Increase output verbosity')
+    log.debug("Exiting skysim_parser()")
     return parser
-
 
 if __name__ == "__main__":
     parser = skysim_parser()
     options = parser.parse_args()
-    
-    # Set logging level based on command line argument
+
     if options.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-        mylogger.info("Logging level set to DEBUG")
-    else:
-        logging.getLogger().setLevel(logging.INFO)
+        log.setLevel(logging.DEBUG)
     
-    mylogger.info("Starting sky simulation...")
-    
+    log.info("Starting sky_sim")
+
     if None in [options.ra, options.dec]:
-        mylogger.info("Generating default RA/DEC...")
         ra, dec = get_radec()
     else:
         ra = options.ra
         dec = options.dec
-    
-    mylogger.info(f"Running simulation with RA={ra}, DEC={dec}")
+
     ras, decs = make_stars(ra, dec)
-    
-    mylogger.info(f"Writing results to {options.out}")
-    with open(options.out, 'w') as f:
+
+    with open(options.out, 'w', encoding='utf8') as f:
         print("id,ra,dec", file=f)
-        for i in range(NSRC):
+        for i in range(min(len(ras), len(decs))):
             print(f"{i:07d}, {ras[i]:12f}, {decs[i]:12f}", file=f)
     
-    mylogger.info(f"Wrote {options.out}")
+    log.info(f"Wrote {options.out}")
+    log.info("Finished sky_sim")
